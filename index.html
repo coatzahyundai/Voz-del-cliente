@@ -93,6 +93,17 @@
 </head>
 <body>
 
+    <div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background-color:var(--hyundai-blue); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:var(--white);">
+        <h2 style="margin-bottom:10px; font-size: 2rem;">Hyundai <span style="color:var(--hyundai-light-blue);">Coatza</span></h2>
+        <p style="margin-bottom: 30px; color: var(--hyundai-sand);">Acceso Restringido - Voz del Cliente</p>
+        
+        <input type="password" id="login-password" placeholder="Ingrese la contraseña" style="padding:12px; border-radius:5px; border:none; margin-bottom:15px; width:280px; text-align:center; font-size: 1rem; outline: none;">
+        
+        <button onclick="verificarPassword()" style="padding:12px 20px; background-color:var(--hyundai-light-blue); color:var(--white); border:none; border-radius:5px; cursor:pointer; font-weight:bold; width: 280px; font-size: 1rem; transition: 0.3s;">Ingresar</button>
+        
+        <p id="login-error" style="color:var(--danger); margin-top:15px; display:none; font-weight: bold; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 4px;">Contraseña incorrecta</p>
+    </div>
+
     <div class="sidebar">
         <h2>Hyundai <span>Coatza</span><br><small style="font-size:0.7rem; color:#E4DCD3; font-weight:normal;">Voz del Cliente</small></h2>
         <button class="menu-btn" onclick="showSection('voc', this)">Encuestas VOC</button>
@@ -280,7 +291,35 @@
         const bluePalette = ['#002C5F', '#00AAD2', '#00539C', '#4B92DB', '#1A4A7B', '#80C4E9'];
         const siNo = (v) => `<option value="" ${!v?'selected':''}>-</option><option value="Si" ${v=='Si'?'selected':''}>Sí</option><option value="No" ${v=='No'?'selected':''}>No</option>`;
 
+        // NUEVO: Función de validación de contraseña
+        function verificarPassword() {
+            const pass = document.getElementById('login-password').value;
+            if (pass === 'HYUNDAICOATZA2026') {
+                sessionStorage.setItem('hyundaiAuth', 'true');
+                document.getElementById('login-overlay').style.display = 'none';
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+                setTimeout(() => { document.getElementById('login-error').style.display = 'none'; }, 3000);
+            }
+        }
+
+        // NUEVO: Permite presionar "Enter" para ingresar
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputPass = document.getElementById('login-password');
+            if(inputPass) {
+                inputPass.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') verificarPassword();
+                });
+            }
+        });
+
         window.onload = () => {
+            // --- NUEVO: Validar si ya inició sesión ---
+            if (sessionStorage.getItem('hyundaiAuth') === 'true') {
+                document.getElementById('login-overlay').style.display = 'none';
+            }
+            // ------------------------------------------
+
             document.querySelectorAll('#form-csi select').forEach(sel => sel.innerHTML = siNo(''));
             document.getElementById('voc-fecha').valueAsDate = new Date(); 
             document.getElementById('csi-fecha').valueAsDate = new Date(); 
